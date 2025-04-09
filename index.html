@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Forest Harvesting Visualization (2023 - With Fluctuation)</title>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h2 {
+      color: #2e7d32;
+    }
+    h3 {
+      margin-top: 40px;
+      color: #1b5e20;
+    }
+    #charts-container > div {
+      margin-bottom: 40px;
+    }
+    #leaflet_map {
+      height: 400px;
+      width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+
+  <!-- Google Charts -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(drawAllCharts);
+
+    function drawAllCharts() {
+      drawOriginalPieChart();
+      drawOriginalBarChart();
+      drawAdjustedPieChart();
+      drawAdjustedBarChart();
+    }
+
+    const originalForestData = [
+      ['State', 'Forest Area (2023)'],
+      ['Arunachal Pradesh', 65882],
+      ['Assam', 28313.55],
+      ['Andhra Pradesh', 30084.96]
+    ];
+
+    const adjustedForestData = [
+      ['State', 'Forest Area (2023)'],
+      ['Arunachal Pradesh', 62588],    // -5%
+      ['Assam', 29729.23],             // +5%
+      ['Andhra Pradesh', 28580.71]     // -5%
+    ];
+
+    function drawOriginalPieChart() {
+      var data = google.visualization.arrayToDataTable(originalForestData);
+      var options = {
+        title: 'Original Forest Share by State (2023)',
+        is3D: true
+      };
+      var chart = new google.visualization.PieChart(document.getElementById('original_pie_chart'));
+      chart.draw(data, options);
+    }
+
+    function drawOriginalBarChart() {
+      var data = google.visualization.arrayToDataTable(originalForestData);
+      var options = {
+        title: 'Original Forest Area by State (2023)',
+        chartArea: { width: '60%' },
+        hAxis: { title: 'Forest Area (sq. km)', minValue: 0 },
+        vAxis: { title: 'State' }
+      };
+      var chart = new google.visualization.BarChart(document.getElementById('original_bar_chart'));
+      chart.draw(data, options);
+    }
+
+    function drawAdjustedPieChart() {
+      var data = google.visualization.arrayToDataTable(adjustedForestData);
+      var options = {
+        title: 'Adjusted Forest Share by State (Fluctuation)',
+        is3D: true,
+        colors: ['#4CAF50', '#FFC107', '#03A9F4']
+      };
+      var chart = new google.visualization.PieChart(document.getElementById('adjusted_pie_chart'));
+      chart.draw(data, options);
+    }
+
+    function drawAdjustedBarChart() {
+      var data = google.visualization.arrayToDataTable(adjustedForestData);
+      var options = {
+        title: 'Adjusted Forest Area by State (Fluctuation)',
+        chartArea: { width: '60%' },
+        hAxis: { title: 'Forest Area (sq. km)', minValue: 0 },
+        vAxis: { title: 'State' },
+        colors: ['#8BC34A']
+      };
+      var chart = new google.visualization.BarChart(document.getElementById('adjusted_bar_chart'));
+      chart.draw(data, options);
+    }
+  </script>
+
+  <!-- Leaflet Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+  <h2>Forest Harvesting Visualization (2023)</h2>
+
+  <div id="charts-container">
+    <h3>Original Forest Data (ISFR 2023)</h3>
+    <div id="original_pie_chart" style="width: 100%; height: 400px;"></div>
+    <div id="original_bar_chart" style="width: 100%; height: 400px;"></div>
+
+    <h3>Adjusted Forest Data (±5% Fluctuation)</h3>
+    <div id="adjusted_pie_chart" style="width: 100%; height: 400px;"></div>
+    <div id="adjusted_bar_chart" style="width: 100%; height: 400px;"></div>
+  </div>
+
+  <h3>Forest Location Map (Leaflet.js)</h3>
+  <div id="leaflet_map"></div>
+
+  <script>
+    var map = L.map('leaflet_map').setView([23.5937, 80.9629], 5); // Center of India
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data © OpenStreetMap contributors'
+    }).addTo(map);
+
+    const forestStates = [
+      {
+        name: "Arunachal Pradesh",
+        coords: [28.218, 94.7278],
+        forest: 62588
+      },
+      {
+        name: "Assam",
+        coords: [26.2006, 92.9376],
+        forest: 29729.23
+      },
+      {
+        name: "Andhra Pradesh",
+        coords: [15.9129, 79.7400],
+        forest: 28580.71
+      }
+    ];
+
+    forestStates.forEach(state => {
+      L.marker(state.coords)
+        .addTo(map)
+        .bindPopup(`<strong>${state.name}</strong><br>Adjusted Forest Cover (2023): ${state.forest} sq. km`);
+    });
+  </script>
+</body>
+</html>
